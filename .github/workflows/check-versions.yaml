@@ -1,0 +1,66 @@
+name: Check versions
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Archi latest version
+        id: archi
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name' | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get coArchi latest version
+        id: coarchi
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi-modelrepository-plugin/tags | jq -r '.[0].name' | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update versions file
+        id: update
+        env:
+          ARCHI_VERSION: ${{ steps.archi.outputs.version }}
+          COARCHI_VERSION: ${{ steps.coarchi.outputs.version }}
+        run: |
+          cat > versions.new << EOF
+          ARCHI_VERSION=$ARCHI_VERSION
+          COARCHI_VERSION=$COARCHI_VERSION
+          EOF
+          if ! diff -q versions versions.new > /dev/null 2>&1; then
+            mv versions.new versions
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            rm versions.new
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get next version
+        id: next-version
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          VERSION=$(date +%Y-%m-%d)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add versions
+          git commit -m "chore: update versions"
+          git push
+
+      - name: Create tag
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git tag "${{ steps.next-version.outputs.version }}"
+          git push origin "${{ steps.next-version.outputs.version }}"
