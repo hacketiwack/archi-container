@@ -39,6 +39,5 @@ jobs:
           build-args: ${{ steps.versions.outputs.list }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-            ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag || 'latest' }}
+            ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag || github.ref_name }}
           push: true
