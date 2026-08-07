@@ -1,5 +1,4 @@
 name: Publish image
-
 on:
   push:
     tags:
@@ -9,7 +8,6 @@ on:
       tag:
         description: 'Image tag'
         required: true
-        default: 'latest'
 
 jobs:
   build-and-publish:
@@ -17,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     steps:
       - uses: actions/checkout@v7
 
@@ -38,5 +37,8 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           build-args: ${{ steps.versions.outputs.list }}
-          tags: archi:latest,archi:${{ github.ref_name }},archi:${{ github.event.inputs.tag }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag || 'latest' }}
           push: true
