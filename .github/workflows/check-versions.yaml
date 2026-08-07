@@ -50,10 +50,9 @@ jobs:
       - name: Commit, tag and push
         if: steps.update.outputs.changed == 'true'
         run: |
-          git add versions
-          git commit -m "chore: update versions"
+          git commit -am "chore: update versions"
           git tag "${{ steps.next-version.outputs.version }}"
-          git push --follow-tags
+          git push --tags
 
       - name: Notify version created
         if: steps.update.outputs.changed == 'true'
