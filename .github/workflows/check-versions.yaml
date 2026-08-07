@@ -64,4 +64,4 @@ jobs:
             -X POST \
             "/repos/${GITHUB_REPOSITORY}/dispatches" \
             -f event_type='version-created' \
-            -F client_payload='{"version":"'"${{ steps.next-version.outputs.version }}"'"}'
+            -F "client_payload[version]=${{ steps.next-version.outputs.version }}"
