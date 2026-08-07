@@ -1,4 +1,5 @@
 name: Publish image
+
 on:
   repository_dispatch:
     types:
