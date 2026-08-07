@@ -19,7 +19,7 @@ jobs:
       - name: Get Archi latest version
         id: archi
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name' | sed 's/^v//')
+          VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name' | sed 's/^release_//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Get coArchi latest version
