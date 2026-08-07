@@ -62,5 +62,6 @@ jobs:
         run: |
           gh api \
             --method POST \
+            --include \
             "/repos/${GITHUB_REPOSITORY}/dispatches" \
             -f event_type='version-created'
