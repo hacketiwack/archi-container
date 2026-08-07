@@ -4,8 +4,6 @@ Container image for **[Archi](https://www.archimatetool.com/)**, the open-source
 
 This repository contains the files and configuration required to build the container image for Archi.
 
-## 📦 Container image
-
 The container image is published to the **GitHub Container Registry**.
 
 ## Usage
