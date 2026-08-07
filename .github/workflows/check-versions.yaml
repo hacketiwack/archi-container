@@ -63,4 +63,5 @@ jobs:
           gh api \
             -X POST \
             "/repos/${GITHUB_REPOSITORY}/dispatches" \
-            -f event_type='version-created'
+            -f event_type='version-created' \
+            -f client_payload="{\"version\":\"${{ steps.next-version.outputs.version }}\"}"
