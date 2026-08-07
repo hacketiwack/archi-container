@@ -1,10 +1,14 @@
 name: Check versions
+
 on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
+
 permissions:
   contents: write
+  actions: write
+
 jobs:
   check-versions:
     runs-on: ubuntu-latest
@@ -12,14 +16,17 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
       - name: Set Archi latest version
         run: |
           ARCHI_VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name' | sed 's/^release_//')
           sed -i "s/^ARCHI_VERSION=.*/ARCHI_VERSION=$ARCHI_VERSION/" versions
+
       - name: Set coArchi latest version
         run: |
           COARCHI_VERSION=$(curl -s https://api.github.com/repos/archimatetool/archi-modelrepository-plugin/tags | jq -r '.[0].name' | sed 's/^v//')
           sed -i "s/^COARCHI_VERSION=.*/COARCHI_VERSION=$COARCHI_VERSION/" versions
+
       - name: Check for changes
         id: update
         run: |
@@ -28,17 +35,18 @@ jobs:
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
       - name: Get next version
         id: next-version
         if: steps.update.outputs.changed == 'true'
-        run: |
-          VERSION=$(date +%Y-%m-%d)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        run: echo "version=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+ 
       - name: Set user
         if: steps.update.outputs.changed == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Commit, tag and push
         if: steps.update.outputs.changed == 'true'
         run: |
@@ -46,3 +54,13 @@ jobs:
           git commit -m "chore: update versions"
           git tag "${{ steps.next-version.outputs.version }}"
           git push --follow-tags
+
+      - name: Notify version created
+        if: steps.update.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.next-version.outputs.version }}
+        run: |
+          gh api \
+            --method POST \
+            "/repos/${GITHUB_REPOSITORY}/dispatches" \
+            -f event_type='version-created'
