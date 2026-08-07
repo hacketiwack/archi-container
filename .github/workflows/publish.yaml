@@ -30,8 +30,9 @@ jobs:
       - name: Get versions
         id: versions
         run: |
-          VERSIONS=$(tr '\n' ',' < versions | sed 's/,$//')
-          echo "list=$VERSIONS" >> $GITHUB_OUTPUT
+          echo "list<<EOF" >> $GITHUB_OUTPUT
+          cat versions >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v7
