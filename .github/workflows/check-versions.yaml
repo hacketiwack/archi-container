@@ -58,7 +58,7 @@ jobs:
       - name: Notify version created
         if: steps.update.outputs.changed == 'true'
         env:
-          TAG: ${{ steps.next-version.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
             --method POST \
