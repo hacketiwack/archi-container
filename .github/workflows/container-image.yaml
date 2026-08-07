@@ -1,0 +1,63 @@
+name: Container Image
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Update versions
+        id: update
+        run: |
+          archi_version=$(curl -fsSL https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name | ltrimstr("release_")')
+          sed -i "s/^\(ARCHI_VERSION=\).*/\1$archi_version/" versions
+
+          coarchi_version=$(curl -fsSL https://api.github.com/repos/archimatetool/archi-modelrepository-plugin/tags | jq -r '.[0].name | ltrimstr("v")')
+          sed -i "s/^\(COARCHI_VERSION=\).*/\1$coarchi_version/" versions
+
+          if git diff --quiet -- versions; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "version=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          echo -e "versions<<EOF\n$(cat versions)\nEOF" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add versions
+          git commit -m "chore: update versions"
+          git tag "${{ steps.update.outputs.version }}"
+          git push --atomic origin "${{ github.ref_name }}" "${{ steps.update.outputs.version }}"
+
+      - uses: docker/login-action@v3
+        if: steps.update.outputs.changed == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        if: steps.update.outputs.changed == 'true'
+        with:
+          build-args: ${{ steps.update.outputs.versions }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.update.outputs.version }}
+          push: true
