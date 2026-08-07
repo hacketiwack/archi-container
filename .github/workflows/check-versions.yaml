@@ -50,7 +50,8 @@ jobs:
       - name: Commit, tag and push
         if: steps.update.outputs.changed == 'true'
         run: |
-          git commit -am "chore: update versions"
+          git add versions
+          git commit -m "chore: update versions"
           git tag "${{ steps.next-version.outputs.version }}"
           git push --tags
 
@@ -60,7 +61,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
-            --method POST \
-            --include \
+            -X POST \
             "/repos/${GITHUB_REPOSITORY}/dispatches" \
             -f event_type='version-created'
