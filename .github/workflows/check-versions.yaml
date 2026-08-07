@@ -53,7 +53,7 @@ jobs:
           git add versions
           git commit -m "chore: update versions"
           git tag "${{ steps.next-version.outputs.version }}"
-          git push --tags
+          git push --atomic origin "${{ github.ref_name }}" "${{ steps.next-version.outputs.version }}"
 
       - name: Notify version created
         if: steps.update.outputs.changed == 'true'
