@@ -10,7 +10,7 @@ RUN set -eux; \
     : "${COARCHI_VERSION:?COARCHI_VERSION is required}"; \ 
     # Install dependencies
     apt-get update -qq; \
-    apt-get install -qq -y wget libarchive-tools libgtk-3-0 xvfb;\
+    apt-get install -qq -y wget fonts-noto fontconfig libarchive-tools libgtk-3-0 xvfb;\
     # Install Archi
     wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION}/Archi-Linux64-${ARCHI_VERSION}.tgz" | bsdtar -xf - --strip-components=1; \
     chmod +x ./Archi; \
