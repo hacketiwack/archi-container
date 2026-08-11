@@ -5,12 +5,16 @@ ARG COARCHI_VERSION
 
 WORKDIR /opt/Archi
 
+COPY fonts/local.conf /etc/fonts/local.conf
+
 RUN set -eux; \
     : "${ARCHI_VERSION:?ARCHI_VERSION is required}"; \
     : "${COARCHI_VERSION:?COARCHI_VERSION is required}"; \ 
     # Install dependencies
     apt-get update -qq; \
     apt-get install -qq -y wget fonts-noto fontconfig libarchive-tools libgtk-3-0 xvfb;\
+    # Configure fonts
+    fc-cache -fv
     # Install Archi
     wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION}/Archi-Linux64-${ARCHI_VERSION}.tgz" | bsdtar -xf - --strip-components=1; \
     chmod +x ./Archi; \
