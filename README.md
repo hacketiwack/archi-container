@@ -32,5 +32,5 @@ The command below implies:
 - that the `public` directory, where the static files are generated, exists. 
 
 ```sh
-podman run --rm ghcr.io/hacketiwack/archi-container:latest -v $(pwd):/workspace --modelrepository.loadModel /workspace/model --html.createReport /workspace/public
+podman run --rm ghcr.io/hacketiwack/archi-container:latest -v $(pwd):/workspace --modelrepository.loadModel /workspace --html.createReport /workspace/public
 ```
