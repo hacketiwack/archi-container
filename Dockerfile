@@ -14,7 +14,7 @@ RUN set -eux; \
     apt-get update -qq; \
     apt-get install -qq -y wget fonts-noto fontconfig libarchive-tools libgtk-3-0 xvfb;\
     # Configure fonts
-    fc-cache -fv
+    fc-cache -fv; \
     # Install Archi
     wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION}/Archi-Linux64-${ARCHI_VERSION}.tgz" | bsdtar -xf - --strip-components=1; \
     chmod +x ./Archi; \
