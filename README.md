@@ -1,4 +1,4 @@
-# Archi Container
+# Introduction
 
 Container image for **[Archi](https://www.archimatetool.com/)**, the open-source ArchiMate modelling tool.
 
