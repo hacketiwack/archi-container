@@ -3,7 +3,7 @@
 Container image for **[Archi](https://www.archimatetool.com/)**, the open-source ArchiMate modelling tool.
 
 This repository contains the files and configuration required to build the container image for Archi.
-The container image is published to the **GitHub Container Registry**.
+The container image is published to the **GitHub Container Registry** (see [here](https://github.com/hacketiwack/archi-container/pkgs/container/archi-container)).
 
 Currently, the image contains Archi and the [coArchi](https://www.archimatetool.com/plugins/#coArchi) plugin.
 
