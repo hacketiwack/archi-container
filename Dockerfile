@@ -1,7 +1,7 @@
 FROM debian:trixie-slim
 WORKDIR /opt/Archi
 COPY fonts/local.conf /etc/fonts/local.conf
-COPY build/archi ./
+COPY build/ ./
 COPY scripts/start ./start
 
 RUN set -eux; \
