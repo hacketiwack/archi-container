@@ -44,7 +44,7 @@ jobs:
           source ./versions
           mkdir -p build/plugins
 
-          wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION}/Archi-Linux64-${ARCHI_VERSION}.tgz" \
+          wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION//./_}/Archi-Linux64-${ARCHI_VERSION}.tgz" \
             | bsdtar -xf - -C build/ --strip-components=1
 
           wget -O - -q "https://www.archimatetool.com/downloads/coarchi/coArchi_${COARCHI_VERSION}.archiplugin" \
