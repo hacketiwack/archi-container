@@ -60,6 +60,7 @@ jobs:
       - uses: docker/build-push-action@v7
         if: steps.update.outputs.changed == 'true'
         with:
+          context: .
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ steps.update.outputs.version }}
