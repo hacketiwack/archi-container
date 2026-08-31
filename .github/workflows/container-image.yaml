@@ -36,15 +36,19 @@ jobs:
           echo "version=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           echo -e "versions<<EOF\n$(cat versions)\nEOF" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push
+      - name: Download and extract Archi and plugins
         if: steps.update.outputs.changed == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add versions
-          git commit -m "chore: update versions"
-          git tag -a "${{ steps.update.outputs.version }}" -m $'Version: ${{ steps.update.outputs.version }}\n\n${{ steps.update.outputs.versions }}'
-          git push --atomic origin "${{ github.ref_name }}" "${{ steps.update.outputs.version }}"
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y libarchive-tools
+          source ./versions
+          mkdir -p build/archi/plugins
+
+          wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION}/Archi-Linux64-${ARCHI_VERSION}.tgz" \
+            | bsdtar -xf - -C build/archi --strip-components=1
+
+          wget -O - -q "https://www.archimatetool.com/downloads/coarchi/coArchi_${COARCHI_VERSION}.archiplugin" \
+            | bsdtar -xf - -C build/archi/plugins
 
       - uses: docker/login-action@v4
         if: steps.update.outputs.changed == 'true'
@@ -56,8 +60,17 @@ jobs:
       - uses: docker/build-push-action@v7
         if: steps.update.outputs.changed == 'true'
         with:
-          build-args: ${{ steps.update.outputs.versions }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ steps.update.outputs.version }}
           push: true
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add versions
+          git commit -m "chore: update versions"
+          git tag -a "${{ steps.update.outputs.version }}" -m $'Version: ${{ steps.update.outputs.version }}\n\n${{ steps.update.outputs.versions }}'
+          git push --atomic origin "${{ github.ref_name }}" "${{ steps.update.outputs.version }}"

@@ -1,0 +1,2 @@
+#!/bin/sh
+xvfb-run -a /opt/Archi/Archi -nosplash -consoleLog -application com.archimatetool.commandline.app "$@"
