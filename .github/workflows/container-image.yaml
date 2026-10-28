@@ -12,6 +12,8 @@ permissions:
 jobs:
   create-image:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
 
     steps:
       - uses: actions/checkout@v7
