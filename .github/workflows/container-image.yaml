@@ -21,10 +21,10 @@ jobs:
       - name: Update versions
         id: update
         run: |
-          archi_version=$(curl -fsSL https://api.github.com/repos/archimatetool/archi/tags | jq -r '.[0].name | ltrimstr("release_")')
+          archi_version=$(gh api repos/archimatetool/archi/tags --jq '.[0].name | ltrimstr("release_")')
           sed -i "s/^\(ARCHI_VERSION=\).*/\1$archi_version/" versions
 
-          coarchi_version=$(curl -fsSL https://api.github.com/repos/archimatetool/archi-modelrepository-plugin/tags | jq -r '.[0].name | ltrimstr("v")')
+          coarchi_version=$(gh api repos/archimatetool/archi-modelrepository-plugin/tags --jq '.[0].name | ltrimstr("v")')
           sed -i "s/^\(COARCHI_VERSION=\).*/\1$coarchi_version/" versions
 
           if git diff --quiet -- versions; then
@@ -44,11 +44,10 @@ jobs:
           source ./versions
           mkdir -p build/plugins
 
-          wget -O - -q "https://github.com/archimatetool/archi.io/releases/download/${ARCHI_VERSION//./_}/Archi-Linux64-${ARCHI_VERSION}.tgz" \
-            | bsdtar -xf - -C build/ --strip-components=1
+          tag=$(gh release list -R archimatetool/archi.io --json name,tagName --jq ".[] | select(.name == \"$ARCHI_VERSION\") | .tagName")
+          gh release download "$tag" -R archimatetool/archi.io -p '*Linux*' -O - | bsdtar -xf - -C build/ --strip-components=1
 
-          wget -O - -q "https://www.archimatetool.com/downloads/coarchi/coArchi_${COARCHI_VERSION}.archiplugin" \
-            | bsdtar -xf - -C build/plugins
+          wget -O - -q "https://www.archimatetool.com/downloads/coarchi/coArchi_${COARCHI_VERSION}.archiplugin" | bsdtar -xf - -C build/plugins
 
       - uses: docker/login-action@v4
         if: steps.update.outputs.changed == 'true'
